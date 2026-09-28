@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizArena | Real-Time Live Quiz Battle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(22, 30, 49, 0.7);
+      --accent: #6366f1;
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, var(--bg) 70%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .hero {
+      text-align: center;
+      max-width: 650px;
+      margin-bottom: 3rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+    }
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fff 30%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      width: 100%;
+      max-width: 780px;
+    }
+    .role-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.2rem;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .role-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(99, 102, 241, 0.5);
+      box-shadow: 0 25px 50px rgba(99, 102, 241, 0.2);
+    }
+    .card-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1.2rem;
+    }
+    .role-card h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+    .role-card p {
+      font-size: 0.92rem;
+      margin-bottom: 1.8rem;
+      flex-grow: 1;
+    }
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 0.95rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-host {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+    .btn-host:hover {
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+      transform: scale(1.02);
+    }
+    .btn-player {
+      background: #10b981;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+    .btn-player:hover {
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+      transform: scale(1.02);
+    }
+    footer {
+      margin-top: 3.5rem;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="badge">⚡ Powered by Socket.io & Synchronous Timers</div>
+    <h1>Real-Time Live Quiz Battle</h1>
+    <p>Compete in high-stakes multiplayer trivia with authoritative countdown clocks, speed-based bonuses, and live animated leaderboards.</p>
+  </div>
+
+  <div class="cards-grid">
+    <div class="role-card">
+      <div class="card-icon">👑</div>
+      <h2>Host a Quiz</h2>
+      <p>Initialize a room, project the live scoreboard, broadcast questions, and crown the winner.</p>
+      <a href="host.html" class="btn btn-host">Host Dashboard ➔</a>
+    </div>
+
+    <div class="role-card">
+      <div class="card-icon">🎮</div>
+      <h2>Join as Player</h2>
+      <p>Enter the 4-digit PIN, battle other participants, and climb the live dynamic leaderboard.</p>
+      <a href="player.html" class="btn btn-player">Enter Gamepad ➔</a>
+    </div>
+  </div>
+
+  <footer>Assignment 14: Real-Time Multiplayer Live Quiz Battle • Tanmay Sherkar</footer>
+</body>
+</html>

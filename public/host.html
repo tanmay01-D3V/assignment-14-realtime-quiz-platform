@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Host Arena | Live Quiz Battle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090e1a;
+      --card-bg: rgba(26, 36, 61, 0.75);
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #6366f1;
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --yellow: #f59e0b;
+      --green: #10b981;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, var(--bg) 80%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Bar */
+    header {
+      padding: 1.2rem 2.5rem;
+      background: rgba(13, 19, 36, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.25rem;
+    }
+
+    .badge-host {
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .view-card {
+      width: 100%;
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .view-card.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 1. Setup Form */
+    .setup-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      max-width: 520px;
+      text-align: center;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .setup-box h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .setup-box p {
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      background: rgba(10, 15, 29, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .btn-create {
+      width: 100%;
+      padding: 1rem;
+      background: var(--accent-gradient);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-create:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.6);
+    }
+
+    /* 2. Lobby View */
+    .lobby-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .pin-display-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px dashed rgba(99, 102, 241, 0.5);
+      border-radius: 24px;
+      padding: 1.5rem 3.5rem;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+    }
+
+    .pin-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: #a5b4fc;
+      margin-bottom: 0.4rem;
+    }
+
+    .pin-number {
+      font-size: 4.8rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      color: #fff;
+      text-shadow: 0 0 30px rgba(99, 102, 241, 0.8);
+    }
+
+    .join-instruction {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .join-instruction strong {
+      color: #38bdf8;
+    }
+
+    .player-roster-box {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      min-height: 220px;
+    }
+
+    .roster-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+
+    .roster-header h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .players-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .player-chip {
+      background: rgba(99, 102, 241, 0.25);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: white;
+      padding: 0.6rem 1.4rem;
+      border-radius: 9999px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .btn-start-game {
+      padding: 1.1rem 3.5rem;
+      background: #10b981;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.3rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-start-game:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.6);
+    }
+
+    .btn-start-game:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* 3. Live Question View */
+    .question-top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .q-meta {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #a5b4fc;
+    }
+
+    .timer-circle-wrapper {
+      position: relative;
+      width: 90px;
+      height: 90px;
+    }
+
+    .timer-svg {
+      transform: rotate(-90deg);
+      width: 90px;
+      height: 90px;
+    }
+
+    .timer-svg circle {
+      fill: none;
+      stroke-width: 8;
+    }
+
+    .timer-track {
+      stroke: rgba(255, 255, 255, 0.1);
+    }
+
+    .timer-bar {
+      stroke: #10b981;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+    }
+
+    .timer-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.8rem;
+      font-weight: 900;
+    }
+
+    .question-banner {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .question-banner h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .opt-card {
+      padding: 2rem 2.2rem;
+      border-radius: 18px;
+      font-size: 1.35rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: white;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .opt-0 { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+    .opt-1 { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+    .opt-2 { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); }
+    .opt-3 { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+
+    .opt-shape {
+      font-size: 1.6rem;
+    }
+
+    .opt-card.dimmed {
+      opacity: 0.25;
+      filter: grayscale(80%);
+    }
+
+    .opt-card.correct {
+      border: 4px solid #fff;
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.9);
+      transform: scale(1.03);
+    }
+
+    .ans-count-tag {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* 4. Reveal & Leaderboard View */
+    .reveal-card {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2rem 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .explanation-box {
+      background: rgba(16, 185, 129, 0.15);
+      border-left: 4px solid #10b981;
+      padding: 1rem 1.5rem;
+      border-radius: 0 12px 12px 0;
+      margin-bottom: 2rem;
+      font-size: 1.05rem;
+    }
+
+    .leaderboard-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 2rem;
+    }
+
+    .lb-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.8rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .lb-row.rank-1 {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+
+    .lb-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .lb-rank {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+    }
+
+    .rank-1 .lb-rank { background: #f59e0b; color: black; }
+    .rank-2 .lb-rank { background: #94a3b8; color: black; }
+    .rank-3 .lb-rank { background: #b45309; color: white; }
+
+    .lb-score {
+      color: #38bdf8;
+    }
+
+    .btn-next {
+      padding: 1rem 3rem;
+      background: var(--accent-gradient);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+      align-self: center;
+    }
+
+    /* 5. Podium / Game Over */
+    .podium-box {
+      text-align: center;
+      padding: 3rem;
+      background: var(--card-bg);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .trophy-icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .winner-name {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #f59e0b;
+      margin-bottom: 0.5rem;
+    }
+
+    .winner-score {
+      font-size: 1.4rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span>⚡</span> QuizArena <span class="badge-host">HOST VIEW</span>
+    </div>
+    <div id="top-pin-indicator" style="display:none; font-weight: 700;">
+      PIN: <span id="top-pin" style="color: #38bdf8;">----</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- View 1: Setup Quiz -->
+    <section id="view-setup" class="view-card active">
+      <div class="setup-box">
+        <h2>Host a Live Battle</h2>
+        <p>Initialize a room, project the synchronized game clock, and invite players.</p>
+
+        <form id="create-quiz-form">
+          <div class="form-group">
+            <label for="host-name">Host Name</label>
+            <input type="text" id="host-name" value="Professor X" required maxlength="25">
+          </div>
+
+          <div class="form-group">
+            <label for="category">Topic / Category</label>
+            <select id="category">
+              <option value="Tech & Cloud">Technology, Node.js & Cloud</option>
+              <option value="Full Stack Dev">Full Stack Development</option>
+              <option value="System Design">Distributed Systems & APIs</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-create">Create Battle Room ➔</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- View 2: Lobby Room -->
+    <section id="view-lobby" class="view-card">
+      <div class="lobby-header">
+        <div class="pin-display-card">
+          <span class="pin-label">GAME PIN</span>
+          <span class="pin-number" id="lobby-pin">----</span>
+        </div>
+        <p class="join-instruction">
+          Join at <strong>/player.html</strong> on any mobile or desktop device
+        </p>
+      </div>
+
+      <div class="player-roster-box">
+        <div class="roster-header">
+          <h3>Connected Players (<span id="player-count">0</span>)</h3>
+          <span style="font-size: 0.85rem; color: var(--muted);">Waiting for players to enter PIN...</span>
+        </div>
+        <div class="players-chips" id="players-chips">
+          <!-- Populated dynamically as players join -->
+        </div>
+      </div>
+
+      <button id="btn-start" class="btn-start-game" disabled>
+        Start Game (Waiting for Players)
+      </button>
+    </section>
+
+    <!-- View 3: Live Question -->
+    <section id="view-question" class="view-card">
+      <div class="question-top-bar">
+        <span class="q-meta" id="q-counter">Question 1 of 5</span>
+        <div class="timer-circle-wrapper">
+          <svg class="timer-svg" viewBox="0 0 100 100">
+            <circle class="timer-track" cx="50" cy="50" r="42"></circle>
+            <circle class="timer-bar" id="timer-bar-circle" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="0"></circle>
+          </svg>
+          <span class="timer-text" id="timer-seconds">15</span>
+        </div>
+        <span class="q-meta" id="q-category">Technology</span>
+      </div>
+
+      <div class="question-banner">
+        <h2 id="question-text">Loading question...</h2>
+      </div>
+
+      <div class="options-grid">
+        <div class="opt-card opt-0" id="host-opt-0">
+          <span class="opt-shape">▲</span>
+          <span class="opt-text" id="host-opt-text-0">Option A</span>
+        </div>
+        <div class="opt-card opt-1" id="host-opt-1">
+          <span class="opt-shape">◆</span>
+          <span class="opt-text" id="host-opt-text-1">Option B</span>
+        </div>
+        <div class="opt-card opt-2" id="host-opt-2">
+          <span class="opt-shape">●</span>
+          <span class="opt-text" id="host-opt-text-2">Option C</span>
+        </div>
+        <div class="opt-card opt-3" id="host-opt-3">
+          <span class="opt-shape">■</span>
+          <span class="opt-text" id="host-opt-text-3">Option D</span>
+        </div>
+      </div>
+
+      <div class="ans-count-tag" id="live-ans-count">
+        Answers received: 0 / 0
+      </div>
+    </section>
+
+    <!-- View 4: Reveal & Live Leaderboard -->
+    <section id="view-reveal" class="view-card">
+      <div class="reveal-card">
+        <h2 style="font-size: 1.8rem; margin-bottom: 0.8rem;">Round Results</h2>
+        <div class="explanation-box" id="reveal-explanation">
+          Node.js is built on Google Chrome's open-source V8 engine.
+        </div>
+
+        <h3 style="font-size: 1.3rem; margin-bottom: 1rem;">Live Dynamic Leaderboard</h3>
+        <ul class="leaderboard-list" id="leaderboard-list">
+          <!-- Populated dynamically -->
+        </ul>
+
+        <div style="text-align: center;">
+          <button id="btn-next-question" class="btn-next">Next Round ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- View 5: Podium / Game Ended -->
+    <section id="view-ended" class="view-card">
+      <div class="podium-box">
+        <div class="trophy-icon">🏆</div>
+        <h3 style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase;">Quiz Champion</h3>
+        <div class="winner-name" id="final-winner-name">Karan</div>
+        <div class="winner-score" id="final-winner-score">4,850 Points</div>
+
+        <h4 style="margin-bottom: 1rem;">Final Standings</h4>
+        <ul class="leaderboard-list" id="final-ranks-list"></ul>
+
+        <button onclick="location.reload()" class="btn-create" style="margin-top: 1.5rem;">Host Another Quiz</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const socket = io();
+    let currentPin = null;
+
+    // View Switching Helper
+    function switchView(viewId) {
+      document.querySelectorAll('.view-card').forEach(card => card.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+    }
+
+    // 1. Create Quiz Form
+    document.getElementById('create-quiz-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const hostName = document.getElementById('host-name').value.trim();
+      const category = document.getElementById('category').value;
+
+      socket.emit('quiz:create', { hostName, category });
+    });
+
+    socket.on('quiz:created', (data) => {
+      currentPin = data.pin;
+      document.getElementById('lobby-pin').textContent = data.pin;
+      document.getElementById('top-pin').textContent = data.pin;
+      document.getElementById('top-pin-indicator').style.display = 'block';
+      switchView('view-lobby');
+    });
+
+    // 2. Lobby Roster Updates
+    socket.on('lobby:update', (data) => {
+      const chipsEl = document.getElementById('players-chips');
+      const countEl = document.getElementById('player-count');
+      const btnStart = document.getElementById('btn-start');
+
+      chipsEl.innerHTML = '';
+      countEl.textContent = data.players.length;
+
+      data.players.forEach(p => {
+        const chip = document.createElement('div');
+        chip.className = 'player-chip';
+        chip.innerHTML = `<span>👤</span> ${p.name}`;
+        chipsEl.appendChild(chip);
+      });
+
+      if (data.players.length > 0) {
+        btnStart.disabled = false;
+        btnStart.textContent = `Start Game (${data.players.length} Players)`;
+      } else {
+        btnStart.disabled = true;
+        btnStart.textContent = 'Start Game (Waiting for Players)';
+      }
+    });
+
+    // 3. Start Game
+    document.getElementById('btn-start').addEventListener('click', () => {
+      if (currentPin) {
+        socket.emit('quiz:start', { pin: currentPin });
+      }
+    });
+
+    // 4. Question Start
+    socket.on('question:start', (data) => {
+      switchView('view-question');
+
+      document.getElementById('q-counter').textContent = `Question ${data.questionIndex} of ${data.totalQuestions}`;
+      document.getElementById('q-category').textContent = data.category || 'Tech';
+      document.getElementById('question-text').textContent = data.question;
+
+      // Reset options styling
+      for (let i = 0; i < 4; i++) {
+        const optCard = document.getElementById(`host-opt-${i}`);
+        const optText = document.getElementById(`host-opt-text-${i}`);
+        optCard.classList.remove('dimmed', 'correct');
+        optText.textContent = data.options[i];
+      }
+
+      document.getElementById('live-ans-count').textContent = `Answers received: 0`;
+      resetTimerCircle();
+    });
+
+    // 5. Timer Tick
+    socket.on('timer:tick', (data) => {
+      const secondsEl = document.getElementById('timer-seconds');
+      const barCircle = document.getElementById('timer-bar-circle');
+      secondsEl.textContent = data.remainingSeconds;
+
+      const circumference = 264; // 2 * PI * 42
+      const offset = circumference - (circumference * (data.percent / 100));
+      barCircle.style.strokeDashoffset = offset;
+
+      if (data.remainingSeconds <= 5) {
+        barCircle.style.stroke = '#ef4444';
+        window.soundEngine.tick();
+      } else if (data.remainingSeconds <= 9) {
+        barCircle.style.stroke = '#f59e0b';
+      } else {
+        barCircle.style.stroke = '#10b981';
+      }
+    });
+
+    function resetTimerCircle() {
+      const barCircle = document.getElementById('timer-bar-circle');
+      barCircle.style.strokeDashoffset = 0;
+      barCircle.style.stroke = '#10b981';
+      document.getElementById('timer-seconds').textContent = '15';
+    }
+
+    // 6. Answer Count Update
+    socket.on('answer:count', (data) => {
+      document.getElementById('live-ans-count').textContent = `Answers received: ${data.answered} / ${data.total}`;
+    });
+
+    // 7. Time Up & Answer Reveal
+    socket.on('question:time_up', (data) => {
+      for (let i = 0; i < 4; i++) {
+        const card = document.getElementById(`host-opt-${i}`);
+        if (i === data.correctOption) {
+          card.classList.add('correct');
+        } else {
+          card.classList.add('dimmed');
+        }
+      }
+
+      document.getElementById('reveal-explanation').textContent = data.explanation;
+      window.soundEngine.correct();
+
+      // Brief delay before switching to leaderboard
+      setTimeout(() => {
+        switchView('view-reveal');
+      }, 2500);
+    });
+
+    // 8. Dynamic Leaderboard
+    socket.on('leaderboard:update', (data) => {
+      const listEl = document.getElementById('leaderboard-list');
+      listEl.innerHTML = '';
+
+      data.leaderboard.forEach(p => {
+        const li = document.createElement('li');
+        li.className = `lb-row rank-${p.rank}`;
+        li.innerHTML = `
+          <div class="lb-left">
+            <span class="lb-rank">${p.rank}</span>
+            <span>${p.name}</span>
+            ${p.streak > 1 ? `<span style="font-size: 0.85rem; color: #f59e0b;">🔥 ${p.streak} streak</span>` : ''}
+          </div>
+          <div class="lb-score">${p.score} pts</div>
+        `;
+        listEl.appendChild(li);
+      });
+    });
+
+    // 9. Next Question
+    document.getElementById('btn-next-question').addEventListener('click', () => {
+      if (currentPin) {
+        socket.emit('quiz:next', { pin: currentPin });
+      }
+    });
+
+    // 10. Quiz Ended
+    socket.on('quiz:ended', (data) => {
+      switchView('view-ended');
+      window.soundEngine.fanfare();
+
+      if (data.winner) {
+        document.getElementById('final-winner-name').textContent = data.winner.name;
+        document.getElementById('final-winner-score').textContent = `${data.winner.score} Points`;
+      }
+
+      const finalEl = document.getElementById('final-ranks-list');
+      finalEl.innerHTML = '';
+      data.finalRanks.forEach(p => {
+        const li = document.createElement('li');
+        li.className = `lb-row rank-${p.rank}`;
+        li.innerHTML = `
+          <div class="lb-left">
+            <span class="lb-rank">${p.rank}</span>
+            <span>${p.name}</span>
+          </div>
+          <div class="lb-score">${p.score} pts</div>
+        `;
+        finalEl.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>

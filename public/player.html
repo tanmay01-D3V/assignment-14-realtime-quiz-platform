@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Player Gamepad | Live Quiz Battle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090e1a;
+      --card: rgba(26, 36, 61, 0.8);
+      --border: rgba(255, 255, 255, 0.12);
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --yellow: #f59e0b;
+      --green: #10b981;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Player Top Bar */
+    header {
+      padding: 0.8rem 1.5rem;
+      background: rgba(13, 19, 36, 0.95);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .player-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .player-name-badge {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .player-score-badge {
+      background: rgba(99, 102, 241, 0.25);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    /* View Switcher */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .player-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      box-sizing: border-box;
+    }
+
+    .player-view.active {
+      display: flex;
+    }
+
+    /* 1. Join Card */
+    .join-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2.2rem 2rem;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .join-card h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+    }
+
+    .join-card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 1rem;
+      background: rgba(10, 15, 29, 0.9);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      color: white;
+      font-size: 1.2rem;
+      text-align: center;
+      font-weight: 700;
+      outline: none;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+    }
+
+    .input-field:focus {
+      border-color: #6366f1;
+    }
+
+    .btn-join {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    /* 2. Lobby Waiting */
+    .lobby-waiting {
+      text-align: center;
+    }
+
+    .pulse-avatar {
+      font-size: 4.5rem;
+      margin-bottom: 1rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .lobby-waiting h3 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .lobby-waiting p {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    /* 3. Live Question Gamepad (4 Big Color Shape Buttons) */
+    .gamepad-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .gamepad-timer-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .gamepad-timer-bar {
+      height: 100%;
+      width: 100%;
+      background: #10b981;
+      transition: width 1s linear, background-color 0.3s;
+    }
+
+    .gamepad-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .gamepad-btn {
+      border: none;
+      border-radius: 20px;
+      color: white;
+      font-size: 3rem;
+      font-weight: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      transition: transform 0.1s ease, filter 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .gamepad-btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn-red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .btn-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+    .btn-yellow { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .btn-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+
+    .gamepad-btn.dimmed {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .gamepad-btn.locked {
+      outline: 4px solid white;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
+      pointer-events: none;
+    }
+
+    .answer-locked-banner {
+      display: none;
+      padding: 0.8rem;
+      text-align: center;
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: 12px;
+      font-weight: 700;
+      color: #c7d2fe;
+    }
+
+    /* 4. Round Feedback View */
+    .feedback-box {
+      text-align: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .feedback-icon {
+      font-size: 4rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .feedback-title {
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+    }
+
+    .feedback-points {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 1.2rem;
+    }
+
+    .feedback-rank {
+      font-size: 1rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header id="player-header" style="display: none;">
+    <div class="player-meta">
+      <span>👤</span>
+      <span class="player-name-badge" id="hud-name">Player</span>
+    </div>
+    <div class="player-score-badge" id="hud-score">0 pts</div>
+  </header>
+
+  <main>
+    <!-- View 1: Join Entry -->
+    <section id="p-view-join" class="player-view active">
+      <div class="join-card">
+        <h2>Enter Battle</h2>
+        <p>Join the live trivia showdown with your room PIN</p>
+
+        <form id="player-join-form">
+          <input type="number" id="input-pin" class="input-field" placeholder="4-Digit PIN" required maxlength="4" autofocus>
+          <input type="text" id="input-name" class="input-field" placeholder="Nickname" required maxlength="15" autocomplete="off">
+          <button type="submit" class="btn-join">Join Game ➔</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- View 2: Lobby Waiting -->
+    <section id="p-view-lobby" class="player-view">
+      <div class="lobby-waiting">
+        <div class="pulse-avatar">🎮</div>
+        <h3>You're In!</h3>
+        <p>See your nickname on the big screen?<br>Waiting for host to start the battle...</p>
+      </div>
+    </section>
+
+    <!-- View 3: Live Gamepad Button Grid -->
+    <section id="p-view-gamepad" class="player-view">
+      <div class="gamepad-container">
+        <div class="gamepad-timer-bar-wrap">
+          <div class="gamepad-timer-bar" id="gamepad-timer-bar"></div>
+        </div>
+
+        <div class="gamepad-grid">
+          <button class="gamepad-btn btn-red" data-option="0" id="btn-opt-0">
+            <span>▲</span>
+          </button>
+          <button class="gamepad-btn btn-blue" data-option="1" id="btn-opt-1">
+            <span>◆</span>
+          </button>
+          <button class="gamepad-btn btn-yellow" data-option="2" id="btn-opt-2">
+            <span>●</span>
+          </button>
+          <button class="gamepad-btn btn-green" data-option="3" id="btn-opt-3">
+            <span>■</span>
+          </button>
+        </div>
+
+        <div class="answer-locked-banner" id="answer-locked-banner">
+          🔒 Answer Submitted! Waiting for timer to expire...
+        </div>
+      </div>
+    </section>
+
+    <!-- View 4: Round Feedback -->
+    <section id="p-view-feedback" class="player-view">
+      <div class="feedback-box">
+        <div class="feedback-icon" id="fb-icon">🎉</div>
+        <div class="feedback-title" id="fb-title">Correct!</div>
+        <div class="feedback-points" id="fb-points">+850 pts</div>
+        <div class="feedback-rank" id="fb-rank">Current Rank: #1 • Streak: 🔥 1</div>
+      </div>
+    </section>
+
+    <!-- View 5: Game Over -->
+    <section id="p-view-ended" class="player-view">
+      <div class="feedback-box">
+        <div class="feedback-icon">🏁</div>
+        <div class="feedback-title">Game Over!</div>
+        <div class="feedback-points" id="final-fb-score">Final Score: 4,200</div>
+        <div class="feedback-rank" id="final-fb-rank">Final Rank: #1</div>
+        <button onclick="location.reload()" class="btn-join" style="margin-top: 1.5rem;">Play Again</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const socket = io();
+    let myPin = null;
+    let myName = null;
+    let currentScore = 0;
+    let hasAnswered = false;
+
+    function switchPlayerView(viewId) {
+      document.querySelectorAll('.player-view').forEach(v => v.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+    }
+
+    // 1. Join Form
+    document.getElementById('player-join-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      myPin = document.getElementById('input-pin').value.trim();
+      myName = document.getElementById('input-name').value.trim();
+
+      if (!myPin || !myName) return;
+
+      socket.emit('quiz:join', { pin: myPin, playerName: myName });
+    });
+
+    socket.on('quiz:joined', (data) => {
+      document.getElementById('player-header').style.display = 'flex';
+      document.getElementById('hud-name').textContent = myName;
+      document.getElementById('hud-score').textContent = '0 pts';
+
+      switchPlayerView('p-view-lobby');
+    });
+
+    socket.on('quiz:join_error', (data) => {
+      alert(`⚠️ ${data.message}`);
+    });
+
+    // 2. Question Round Starts
+    socket.on('question:start', (data) => {
+      hasAnswered = false;
+      document.getElementById('answer-locked-banner').style.display = 'none';
+
+      // Reset gamepad buttons
+      for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`btn-opt-${i}`);
+        btn.classList.remove('dimmed', 'locked');
+        btn.disabled = false;
+      }
+
+      document.getElementById('gamepad-timer-bar').style.width = '100%';
+      document.getElementById('gamepad-timer-bar').style.backgroundColor = '#10b981';
+
+      switchPlayerView('p-view-gamepad');
+    });
+
+    // 3. Timer Tick Sync
+    socket.on('timer:tick', (data) => {
+      const bar = document.getElementById('gamepad-timer-bar');
+      bar.style.width = `${data.percent}%`;
+
+      if (data.remainingSeconds <= 5) {
+        bar.style.backgroundColor = '#ef4444';
+      } else if (data.remainingSeconds <= 9) {
+        bar.style.backgroundColor = '#f59e0b';
+      } else {
+        bar.style.backgroundColor = '#10b981';
+      }
+    });
+
+    // 4. Submit Answer on Button Click
+    document.querySelectorAll('.gamepad-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (hasAnswered) return;
+        hasAnswered = true;
+
+        const selectedOption = parseInt(btn.getAttribute('data-option'), 10);
+
+        // Lock in styling
+        for (let i = 0; i < 4; i++) {
+          const b = document.getElementById(`btn-opt-${i}`);
+          if (i === selectedOption) {
+            b.classList.add('locked');
+          } else {
+            b.classList.add('dimmed');
+          }
+          b.disabled = true;
+        }
+
+        document.getElementById('answer-locked-banner').style.display = 'block';
+
+        socket.emit('answer:submit', {
+          pin: myPin,
+          selectedOption
+        });
+      });
+    });
+
+    // 5. Personal Round Result Feedback
+    socket.on('player:round_result', (data) => {
+      currentScore = data.totalScore;
+      document.getElementById('hud-score').textContent = `${currentScore} pts`;
+
+      const iconEl = document.getElementById('fb-icon');
+      const titleEl = document.getElementById('fb-title');
+      const pointsEl = document.getElementById('fb-points');
+      const rankEl = document.getElementById('fb-rank');
+
+      if (data.isCorrect) {
+        iconEl.textContent = '🚀';
+        titleEl.textContent = 'CORRECT!';
+        titleEl.style.color = '#10b981';
+        pointsEl.textContent = `+${data.pointsEarned} pts`;
+        window.soundEngine.correct();
+      } else {
+        iconEl.textContent = '💔';
+        titleEl.textContent = 'INCORRECT';
+        titleEl.style.color = '#ef4444';
+        pointsEl.textContent = `+0 pts`;
+        window.soundEngine.wrong();
+      }
+
+      rankEl.textContent = `Rank: #${data.rank} • Streak: ${data.streak > 1 ? '🔥 ' + data.streak : '-'}`;
+
+      switchPlayerView('p-view-feedback');
+    });
+
+    // 6. Game Ended
+    socket.on('quiz:ended', (data) => {
+      switchPlayerView('p-view-ended');
+      document.getElementById('final-fb-score').textContent = `Final Score: ${currentScore} Points`;
+
+      const myRankObj = data.finalRanks.find(r => r.name === myName);
+      if (myRankObj) {
+        document.getElementById('final-fb-rank').textContent = `Rank #${myRankObj.rank} of ${data.finalRanks.length}`;
+      }
+    });
+
+    // 7. Host Disconnect
+    socket.on('quiz:cancelled', (data) => {
+      alert(`Notice: ${data.message}`);
+      location.reload();
+    });
+  </script>
+</body>
+</html>

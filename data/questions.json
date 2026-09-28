@@ -1,0 +1,42 @@
+[
+  {
+    "id": "q1",
+    "question": "What JavaScript engine powers Node.js under the hood?",
+    "options": ["Google V8", "SpiderMonkey", "Chakra", "JavaScriptCore"],
+    "correctOption": 0,
+    "explanation": "Node.js is built on Google Chrome's open-source high-performance V8 JavaScript and WebAssembly engine.",
+    "category": "Node.js"
+  },
+  {
+    "id": "q2",
+    "question": "Which C library handles the asynchronous event loop and thread pool in Node.js?",
+    "options": ["libuv", "glibc", "Boost", "OpenSSL"],
+    "correctOption": 0,
+    "explanation": "libuv is the multi-platform support library focusing on asynchronous I/O and providing the event loop and thread pool in Node.js.",
+    "category": "Node.js"
+  },
+  {
+    "id": "q3",
+    "question": "In Firestore, what method ensures atomic reads and writes to prevent race conditions?",
+    "options": ["batchWrite()", "runTransaction()", "commit()", "atomicLock()"],
+    "correctOption": 1,
+    "explanation": "Firestore's runTransaction() enforces serializable ACID transactions that automatically retry on concurrent conflicting mutations.",
+    "category": "Databases"
+  },
+  {
+    "id": "q4",
+    "question": "Which HTTP status code signifies that a client has exceeded their rate limit?",
+    "options": ["401 Unauthorized", "403 Forbidden", "429 Too Many Requests", "503 Service Unavailable"],
+    "correctOption": 2,
+    "explanation": "HTTP 429 Too Many Requests indicates the user has sent too many requests in a given amount of time (rate limiting).",
+    "category": "Web APIs"
+  },
+  {
+    "id": "q5",
+    "question": "In Socket.io, how do you emit an event to every client in a room EXCEPT the sender?",
+    "options": ["io.to(room).emit()", "socket.to(room).emit()", "socket.broadcast.emit()", "io.emit()"],
+    "correctOption": 1,
+    "explanation": "socket.to(room).emit() broadcasts the event to all peers in the room excluding the socket originating the call.",
+    "category": "WebSockets"
+  }
+]
